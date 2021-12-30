@@ -16,11 +16,15 @@ from rest_framework import mixins
 class ArticleList (generics.GenericAPIView,mixins.ListModelMixin,mixins.CreateModelMixin):
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer
+
     def get(self,request):
         return self.list(request)
-    
+
     def post(self,request):
         return self.create(request)
+    
+    def delete(self,request):
+        return self.destroy(request)
 """
     def post(self, request):
         serializer = ArticleSerializer(data=request.data)
@@ -41,32 +45,25 @@ class ArticleList (generics.GenericAPIView,mixins.ListModelMixin,mixins.CreateMo
         article = Article.objects.get(pk=pk)
         article.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-class ArticleDetails (APIView):
-    def get_object(self, pk):
-        try:
-            return Article.objects.get(pk=pk)
-        except Article.DoesNotExist:
-            return HttpResponse(status=status.HTTP_404_NOT_FOUND)
-
-    def get(self, request, pk):
-        article = self.get_object(pk)
-        serializer = ArticleSerializer(article)
-        return Response(serializer.data)
+"""
+class ArticleDetails (generics.GenericAPIView,mixins.RetrieveModelMixin,
+                        mixins.UpdateModelMixin,mixins.DestroyModelMixin):
+    queryset = Article.objects.all()
+    serializer_class = ArticleSerializer
+    lookup_field = 'pk'
+    
+    def get(self,request,pk):
+        return self.retrieve(request,pk=pk)
 
     def put(self, request, pk):
-        article = self.get_object(pk)
-        serializer = ArticleSerializer(article, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        return self.update(request,pk=pk)
+    
     def delete(self, request, pk):
-        article = self.get_object(pk)
-        article.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-"""
+        return self.destroy(request,pk=pk)
+    
+
+
+   
 """
 @api_view(['GET', 'PUT', 'DELETE'])
 def article_list(request):
